@@ -1,0 +1,1789 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Sistema de Gestión de Asistencia | Marcelino Champagnat II</title>
+  <!-- Favicon oficial con el logo del colegio -->
+  <link rel="icon" type="image/jpeg" href="logo.jpeg">
+  <style>
+    :root {
+      --n: #062b55;
+      --b: #0878e8;
+      --g: #13a36b;
+      --r: #ed2344;
+      --p: #7653dc;
+      --o: #f5a21a;
+      --bg: #f2f7fc;
+      --ink: #12345b;
+      --line: #d9e7f5;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: var(--bg);
+      color: var(--ink);
+    }
+
+    button, input, select, textarea {
+      font: inherit;
+    }
+
+    button {
+      cursor: pointer;
+      border: 0;
+    }
+
+    /* Pantalla de Autenticación (Login / Registro) */
+    .auth-screen {
+      position: fixed;
+      inset: 0;
+      background: linear-gradient(135deg, #062b55 0%, #0c528c 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      z-index: 100;
+    }
+
+    .auth-card {
+      background: #fff;
+      width: min(420px, 100%);
+      border-radius: 14px;
+      padding: 24px;
+      box-shadow: 0 15px 35px rgba(0,0,0,0.3);
+    }
+
+    .auth-logo {
+      width: 64px;
+      height: 64px;
+      object-fit: cover;
+      background: #fff;
+      border-radius: 50%;
+      border: 3px solid #e6a12b;
+      padding: 2px;
+      display: block;
+      margin: 0 auto 12px;
+    }
+
+    .auth-title {
+      text-align: center;
+      font-size: 18px;
+      color: var(--n);
+      margin: 0 0 4px;
+    }
+
+    .auth-subtitle {
+      text-align: center;
+      font-size: 12px;
+      color: #6480a1;
+      margin: 0 0 16px;
+    }
+
+    .auth-tabs {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      background: #edf4fc;
+      border-radius: 9px;
+      padding: 4px;
+      margin-bottom: 14px;
+    }
+
+    .auth-tab {
+      padding: 8px;
+      text-align: center;
+      font-weight: bold;
+      font-size: 12px;
+      border-radius: 7px;
+      background: transparent;
+      color: var(--ink);
+    }
+
+    .auth-tab.active {
+      background: var(--b);
+      color: #fff;
+    }
+
+    .auth-fields {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .auth-fields label {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      font-size: 12px;
+      font-weight: bold;
+    }
+
+    .auth-fields input {
+      padding: 10px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+    }
+
+    /* Ocultar elementos si el usuario es Lector */
+    body.is-lector .admin-only {
+      display: none !important;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 220px 1fr;
+      min-height: 100vh;
+    }
+
+    .side {
+      background: linear-gradient(#062d58, #041e3d);
+      color: #fff;
+      padding: 14px 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .smallbrand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px;
+      border-bottom: 1px solid #ffffff30;
+      margin-bottom: 8px;
+      font-size: 12px;
+    }
+
+    .user-badge {
+      background: #ffffff15;
+      padding: 8px 10px;
+      border-radius: 8px;
+      font-size: 11px;
+      margin-bottom: 6px;
+    }
+
+    .logo {
+      width: 54px;
+      height: 54px;
+      object-fit: cover;
+      background: #fff;
+      border-radius: 50%;
+      border: 3px solid #e6a12b;
+      padding: 2px;
+      box-shadow: 0 2px 8px #0002;
+    }
+
+    .nav {
+      padding: 13px;
+      border-radius: 10px;
+      background: transparent;
+      color: #edf6ff;
+      text-align: left;
+    }
+
+    .nav.active, .nav:hover {
+      background: #0878e8;
+    }
+
+    .nav.logout {
+      background: #ed234433;
+      color: #ffccd4;
+      margin-top: 10px;
+    }
+
+    .nav.logout:hover {
+      background: var(--r);
+      color: #fff;
+    }
+
+    .quote {
+      margin-top: auto;
+      padding: 20px 10px;
+      font: italic 16px/1.5 Georgia, serif;
+      color: #dceeff;
+    }
+
+    .hero {
+      background: linear-gradient(110deg, #062b55, #0c528c);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      padding: 22px 26px;
+      min-height: 175px;
+    }
+
+    .hero .logo {
+      width: 95px;
+      height: 95px;
+      flex-shrink: 0;
+    }
+
+    .hero h1 {
+      font-size: clamp(19px, 2.2vw, 29px);
+      margin: 0 0 5px;
+    }
+
+    .hero p {
+      margin: 0;
+      color: #dceeff;
+      font-size: 13px;
+    }
+
+    .slogan {
+      font: italic 19px Georgia, serif;
+      margin-top: 12px;
+    }
+
+    .date {
+      margin-left: auto;
+      text-align: right;
+      font-size: 12px;
+      min-width: 130px;
+    }
+
+    .content {
+      padding: 18px;
+      max-width: 1700px;
+      margin: auto;
+    }
+
+    .heading {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      align-items: center;
+      flex-wrap: wrap;
+      margin-bottom: 14px;
+    }
+
+    .heading h2 {
+      margin: 0;
+    }
+
+    .btn {
+      padding: 10px 13px;
+      border-radius: 9px;
+      background: var(--b);
+      color: white;
+      font-weight: bold;
+    }
+
+    .btn.gray {
+      background: #edf4fc;
+      color: var(--ink);
+      border: 1px solid var(--line);
+    }
+
+    .btn.green {
+      background: var(--g);
+    }
+
+    .btn.red {
+      background: var(--r);
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .stat, .panel {
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 13px;
+      box-shadow: 0 5px 18px #0b3e7010;
+    }
+
+    .stat {
+      padding: 17px;
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .bubble {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: var(--b);
+      color: #fff;
+      display: grid;
+      place-items: center;
+      font-size: 22px;
+    }
+
+    .stat:nth-child(2) .bubble {
+      background: var(--g);
+    }
+
+    .stat:nth-child(3) .bubble {
+      background: var(--p);
+    }
+
+    .stat strong {
+      font-size: 26px;
+      display: block;
+    }
+
+    .muted {
+      color: #6480a1;
+      font-size: 12px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.7fr) minmax(300px, 1fr);
+      gap: 14px;
+    }
+
+    .panel {
+      padding: 15px;
+      margin-bottom: 14px;
+      min-width: 0;
+    }
+
+    .panelhead {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 13px;
+    }
+
+    .panel h3 {
+      font-size: 16px;
+      margin: 0;
+    }
+
+    .courses {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(105px, 1fr));
+      gap: 7px;
+    }
+
+    .course {
+      padding: 12px 6px;
+      border: 1px solid var(--line);
+      border-radius: 9px;
+      background: #f8fbff;
+      color: var(--ink);
+      font-weight: bold;
+    }
+
+    .course small {
+      display: block;
+      font-weight: normal;
+      margin-top: 4px;
+    }
+
+    .course.active {
+      background: linear-gradient(145deg, #06477e, #0878e8);
+      color: white;
+    }
+
+    .toolbar {
+      display: flex;
+      justify-content: space-between;
+      gap: 9px;
+      flex-wrap: wrap;
+      margin: 10px 0;
+    }
+
+    .search, input[type=date] {
+      border: 1px solid var(--line);
+      padding: 10px;
+      border-radius: 9px;
+      min-width: 180px;
+    }
+
+    .legend {
+      display: flex;
+      gap: 13px;
+      flex-wrap: wrap;
+      font-size: 12px;
+    }
+
+    .dot {
+      display: inline-block;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--g);
+    }
+
+    .dot.red {
+      background: var(--r);
+    }
+
+    .dot.blue {
+      background: var(--b);
+    }
+
+    .tablewrap {
+      overflow: auto;
+      border: 1px solid var(--line);
+      border-radius: 9px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 610px;
+      font-size: 12px;
+    }
+
+    thead {
+      background: #0b477f;
+      color: white;
+    }
+
+    th, td {
+      text-align: left;
+      padding: 10px 8px;
+      border-bottom: 1px solid #e4edf6;
+    }
+
+    tbody tr:hover {
+      background: #f6faff;
+    }
+
+    .marks {
+      display: flex;
+      gap: 4px;
+    }
+
+    .marks button {
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      background: #edf3f9;
+      color: #7b90a7;
+      font-weight: bold;
+    }
+
+    .marks .P {
+      background: #dff7eb;
+      color: #078c57;
+    }
+
+    .marks .F {
+      background: #ffe5e9;
+      color: #d91e3e;
+    }
+
+    .marks .L {
+      background: #e1efff;
+      color: #0874df;
+    }
+
+    .quick {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+    }
+
+    .quick button {
+      padding: 16px 8px;
+      border-radius: 9px;
+      background: var(--b);
+      color: white;
+      font-weight: bold;
+    }
+
+    .quick button:nth-child(2) {
+      background: var(--g);
+    }
+
+    .quick button:nth-child(3) {
+      background: var(--p);
+    }
+
+    .quick button:nth-child(4) {
+      background: var(--o);
+      color: #392600;
+    }
+
+    .item {
+      display: flex;
+      gap: 9px;
+      align-items: center;
+      padding: 11px 0;
+      border-bottom: 1px solid #e8f0f8;
+      font-size: 12px;
+    }
+
+    .item:last-child {
+      border-bottom: 0;
+    }
+
+    .grow {
+      flex: 1;
+    }
+
+    .item small {
+      display: block;
+      color: #6480a1;
+      margin-top: 4px;
+    }
+
+    .status {
+      padding: 6px 9px;
+      border-radius: 99px;
+      font-size: 11px;
+      font-weight: bold;
+      white-space: nowrap;
+    }
+
+    .pending {
+      background: #fff1d9;
+      color: #a76400;
+    }
+
+    .approved {
+      background: #dff7eb;
+      color: #087c4e;
+    }
+
+    .rejected {
+      background: #ffe5e9;
+      color: #c11b36;
+    }
+
+    .foot {
+      font-size: 12px;
+      color: #6480a1;
+      text-align: center;
+      padding: 10px;
+    }
+
+    .modalback {
+      position: fixed;
+      inset: 0;
+      background: #04172bcc;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      z-index: 9;
+    }
+
+    .modalback.open {
+      display: flex;
+    }
+
+    .modal {
+      background: white;
+      padding: 22px;
+      border-radius: 14px;
+      width: min(600px, 100%);
+      max-height: 90vh;
+      overflow: auto;
+    }
+
+    .fields {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      font-size: 12px;
+      font-weight: bold;
+    }
+
+    .field input, .field select, .field textarea {
+      padding: 10px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      min-width: 0;
+    }
+
+    .field.full {
+      grid-column: 1/-1;
+    }
+
+    .field textarea {
+      min-height: 70px;
+    }
+
+    .modalactions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      margin-top: 15px;
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 15px;
+      right: 15px;
+      background: #062b55;
+      color: white;
+      padding: 12px 16px;
+      border-radius: 9px;
+      display: none;
+      z-index: 12;
+    }
+
+    .toast.show {
+      display: block;
+    }
+
+    @media(max-width: 1100px) {
+      .layout {
+        grid-template-columns: 175px 1fr;
+      }
+      .grid {
+        grid-template-columns: 1fr;
+      }
+      .stats {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      .date {
+        display: none;
+      }
+    }
+
+    @media(max-width: 680px) {
+      .layout {
+        display: block;
+      }
+      .side {
+        position: sticky;
+        top: 0;
+        z-index: 5;
+        flex-direction: row;
+        overflow: auto;
+        padding: 6px;
+      }
+      .smallbrand, .quote {
+        display: none;
+      }
+      .nav {
+        padding: 10px;
+        white-space: nowrap;
+        font-size: 12px;
+      }
+      .hero {
+        padding: 15px;
+        gap: 10px;
+      }
+      .hero .logo {
+        width: 65px;
+        height: 65px;
+      }
+      .hero h1 {
+        font-size: 16px;
+      }
+      .hero p {
+        font-size: 10px;
+      }
+      .slogan {
+        font-size: 14px;
+      }
+      .content {
+        padding: 10px;
+      }
+      .stats {
+        gap: 7px;
+      }
+      .stat {
+        padding: 10px;
+        gap: 7px;
+      }
+      .bubble {
+        width: 35px;
+        height: 35px;
+        font-size: 17px;
+      }
+      .stat strong {
+        font-size: 20px;
+      }
+      .fields {
+        grid-template-columns: 1fr;
+      }
+      .field.full {
+        grid-column: auto;
+      }
+    }
+
+    @media print {
+      .side, .actions, .courses, .quick, .search, .modalback {
+        display: none !important;
+      }
+      .layout, .grid {
+        display: block;
+      }
+      .hero {
+        print-color-adjust: exact;
+      }
+      .content {
+        padding: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- PANTALLA DE LOGIN / REGISTRO -->
+  <div class="auth-screen" id="authScreen">
+    <div class="auth-card">
+      <img class="auth-logo logoimg" src="logo.jpeg" alt="Logo">
+      <h2 class="auth-title">U.E. MARCELINO CHAMPAGNAT II</h2>
+      <p class="auth-subtitle">Sistema de Gestión de Asistencia</p>
+
+      <div class="auth-tabs">
+        <button class="auth-tab active" id="tabLoginBtn" onclick="switchAuthTab('login')">Iniciar Sesión</button>
+        <button class="auth-tab" id="tabRegisterBtn" onclick="switchAuthTab('register')">Registrarse (Lector)</button>
+      </div>
+
+      <!-- Formulario Login -->
+      <form id="loginForm" class="auth-form" onsubmit="handleLogin(event)">
+        <div class="auth-fields">
+          <label>Usuario: <input type="text" id="loginUser" required placeholder="Ej. admin o tu usuario"></label>
+          <label>Contraseña: <input type="password" id="loginPass" required placeholder="••••••••"></label>
+        </div>
+        <button class="btn" type="submit" style="width:100%;">Ingresar al Sistema</button>
+        <div class="auth-note" style="margin-top: 10px; font-size: 11px; color: #6480a1;">
+          💡 <b>Acceso Director (Admin):</b><br>Usuario: <code>admin</code> | Contraseña: <code>director123</code>
+        </div>
+      </form>
+
+      <!-- Formulario Registro (Solo Lector) -->
+      <form id="registerForm" class="auth-form" style="display:none;" onsubmit="handleRegister(event)">
+        <div class="auth-fields">
+          <label>Nombre completo: <input type="text" id="regName" required placeholder="Tu nombre"></label>
+          <label>Nombre de usuario: <input type="text" id="regUser" required placeholder="Nombre para iniciar sesión"></label>
+          <label>Contraseña: <input type="password" id="regPass" required placeholder="••••••••"></label>
+        </div>
+        <button class="btn green" type="submit" style="width:100%;">Crear Cuenta de Lector</button>
+        <div class="auth-note" style="margin-top: 10px; font-size: 11px; color: #6480a1;">
+          ℹ️ Las nuevas cuentas se registran automáticamente con permisos de <b>Lector</b> (solo lectura).
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="layout">
+    <aside class="side">
+      <div class="smallbrand">
+        <img class="logo logoimg" src="logo.jpeg" alt="Logo de la Unidad Educativa Marcelino Champagnat II">
+        <b>U.E. MARCELINO<br>CHAMPAGNAT II</b>
+      </div>
+      <div class="user-box" id="userBoxInfo"></div>
+      <button class="nav active" data-view="Inicio">⌂ Inicio</button>
+      <button class="nav" data-view="Cursos">▤ Cursos</button>
+      <button class="nav" data-view="Asistencia">☑ Asistencia</button>
+      <button class="nav" data-view="Licencias">▣ Licencias</button>
+      <button class="nav" data-view="Citaciones">♧ Citaciones</button>
+      <button class="nav admin-only" data-view="Usuarios">♙ Usuarios</button>
+      <button class="nav admin-only" data-view="Configuración">⚙ Configuración</button>
+      <button type="button" class="nav logout" id="btnLogout">🚪 Cerrar Sesión</button>
+      <div class="quote">
+        “La educación es un acto de amor y una forma de construir un mundo mejor.”<br><br>— Marcelino Champagnat
+      </div>
+    </aside>
+
+    <main>
+      <header class="hero">
+        <img class="logo logoimg" src="logo.jpeg" alt="Logo de la Unidad Educativa Marcelino Champagnat II">
+        <div>
+          <h1>SISTEMA DE GESTIÓN DE ASISTENCIA</h1>
+          <p>PARA LOS ESTUDIANTES DE LA UNIDAD EDUCATIVA</p>
+          <h1>MARCELINO CHAMPAGNAT II</h1>
+          <div class="slogan">Formación integral para un mejor futuro</div>
+        </div>
+        <div class="date" id="today"></div>
+      </header>
+
+      <div class="content">
+        <div class="heading">
+          <div>
+            <div class="muted">PANEL DE CONTROL</div>
+            <h2 id="pageTitle">Resumen general</h2>
+          </div>
+          <div class="actions">
+            <button class="btn gray" id="export">⇩ Exportar CSV</button>
+            <button class="btn" onclick="window.print()">Imprimir informe</button>
+          </div>
+        </div>
+
+        <div class="stats">
+          <div class="stat">
+            <div class="bubble">♟</div>
+            <div>
+              <strong id="total">0</strong>
+              <span class="muted">Total de estudiantes</span>
+            </div>
+          </div>
+          <div class="stat">
+            <div class="bubble">♙</div>
+            <div>
+              <strong>12</strong>
+              <span class="muted">Docentes (demo)</span>
+            </div>
+          </div>
+          <div class="stat">
+            <div class="bubble">▣</div>
+            <div>
+              <strong id="totalCourses">6</strong>
+              <span class="muted">Cursos registrados</span>
+            </div>
+          </div>
+          <div class="stat">
+            <div class="bubble">☑</div>
+            <div>
+              <strong id="present">0</strong>
+              <span class="muted">Presentes hoy</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid">
+          <div>
+            <section class="panel">
+              <div class="panelhead">
+                <h3>🎓 Seleccioná un curso</h3>
+                <button class="btn gray admin-only" id="addCourseBtn">＋ Nuevo curso</button>
+              </div>
+              <div class="courses" id="courses"></div>
+            </section>
+
+            <section class="panel">
+              <div class="panelhead">
+                <h3 id="attTitle">Asistencia</h3>
+                <input type="date" id="date">
+              </div>
+              <div class="toolbar">
+                <div class="legend">
+                  <b><i class="dot"></i> • Presente</b>
+                  <b><i class="dot red"></i> F Falta</b>
+                  <b><i class="dot blue"></i> L Licencia aprobada</b>
+                </div>
+                <input class="search" id="search" placeholder="Buscar alumno...">
+                <div class="admin-only" style="display:flex;gap:6px;align-items:center;">
+                  <input class="search" id="newStudentName" placeholder="Escribí el nombre del estudiante">
+                  <button class="btn" id="addDirect">＋ Agregar</button>
+                </div>
+              </div>
+              <div class="tablewrap">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>N.º</th>
+                      <th>Nombre del estudiante</th>
+                      <th>Asistencia</th>
+                      <th>Observaciones</th>
+                    </tr>
+                  </thead>
+                  <tbody id="rows"></tbody>
+                </table>
+              </div>
+              <div class="toolbar">
+                <span class="muted" id="showing"></span>
+                <span class="muted" id="modeNotice"></span>
+              </div>
+            </section>
+
+            <section class="panel">
+              <div class="panelhead">
+                <h3>Resumen del curso</h3>
+                <span id="courseTotal" class="muted"></span>
+              </div>
+              <div class="legend" id="breakdown"></div>
+            </section>
+          </div>
+
+          <div>
+            <section class="panel">
+              <div class="panelhead">
+                <h3>⚡ Acciones rápidas</h3>
+              </div>
+              <div class="quick">
+                <button class="admin-only" id="quickAtt">☑<br>Registrar asistencia</button>
+                <button id="quickLeave">▤<br>Solicitar licencia</button>
+                <button class="admin-only" id="quickCite">♧<br>Generar citaciones</button>
+                <button class="admin-only" id="quickCourse">▣<br>Añadir curso</button>
+              </div>
+            </section>
+
+            <section class="panel">
+              <div class="panelhead">
+                <h3>📄 Solicitudes de licencia</h3>
+                <button class="btn gray" id="allLeaves">Ver todas</button>
+              </div>
+              <div id="leaves"></div>
+            </section>
+
+            <section class="panel">
+              <div class="panelhead">
+                <h3>👥 Próximas citaciones a padres</h3>
+                <button class="btn gray" id="allCites">Ver todas</button>
+              </div>
+              <div id="cites"></div>
+            </section>
+
+            <section class="panel admin-only">
+              <div class="panelhead">
+                <h3>🛠 Herramientas</h3>
+              </div>
+              <div class="quick">
+                <button id="add">＋ Agregar alumno</button>
+                <button id="review">✓ Revisar licencias</button>
+              </div>
+            </section>
+          </div>
+        </div>
+
+        <section class="panel" id="extraView" style="display:none"></section>
+
+        <div class="foot">
+          Unidad Educativa Marcelino Champagnat II · Educación · Valores · Futuro<br>
+          Juntos por una mejor educación. <span id="saved"></span>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <div class="modalback" id="back">
+    <div class="modal">
+      <h2 id="modalTitle"></h2>
+      <form id="form">
+        <div class="fields" id="fields"></div>
+        <div class="modalactions">
+          <button type="button" class="btn gray" id="cancel">Cancelar</button>
+          <button class="btn">Guardar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    let currentUser = JSON.parse(localStorage.getItem('marcelinoUser') || 'null');
+
+    function switchAuthTab(tab) {
+      if (tab === 'login') {
+        document.getElementById('loginForm').style.display = 'flex';
+        document.getElementById('registerForm').style.display = 'none';
+        document.getElementById('tabLoginBtn').classList.add('active');
+        document.getElementById('tabRegisterBtn').classList.remove('active');
+      } else {
+        document.getElementById('loginForm').style.display = 'none';
+        document.getElementById('registerForm').style.display = 'flex';
+        document.getElementById('tabRegisterBtn').classList.add('active');
+        document.getElementById('tabLoginBtn').classList.remove('active');
+      }
+    }
+
+    async function handleLogin(e) {
+      e.preventDefault();
+      const usuario = document.getElementById('loginUser').value.trim();
+      const password = document.getElementById('loginPass').value;
+
+      try {
+        const res = await fetch('/api/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ usuario, password })
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Error al iniciar sesión');
+
+        currentUser = data.user;
+        localStorage.setItem('marcelinoUser', JSON.stringify(currentUser));
+        checkAuthUI();
+        notify('¡Bienvenido, ' + currentUser.nombre + '!');
+      } catch (err) {
+        alert(err.message);
+      }
+    }
+
+    async function handleRegister(e) {
+      e.preventDefault();
+      const nombre = document.getElementById('regName').value.trim();
+      const usuario = document.getElementById('regUser').value.trim();
+      const password = document.getElementById('regPass').value;
+
+      try {
+        const res = await fetch('/api/registro', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ nombre, usuario, password })
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Error al registrarse');
+
+        currentUser = data.user;
+        localStorage.setItem('marcelinoUser', JSON.stringify(currentUser));
+        checkAuthUI();
+        notify('¡Cuenta de lector creada con éxito!');
+      } catch (err) {
+        alert(err.message);
+      }
+    }
+
+    function cerrarSesion() {
+      localStorage.removeItem('marcelinoUser');
+      sessionStorage.clear();
+      currentUser = null;
+      const authScreen = document.getElementById('authScreen');
+      if (authScreen) {
+        authScreen.style.display = 'flex';
+      } else {
+        window.location.reload();
+      }
+    }
+
+    function checkAuthUI() {
+      const authScreen = document.getElementById('authScreen');
+      const userBox = document.getElementById('userBoxInfo');
+      const modeNotice = document.getElementById('modeNotice');
+
+      if (!currentUser) {
+        authScreen.style.display = 'flex';
+        return;
+      }
+
+      authScreen.style.display = 'none';
+      if (currentUser.rol === 'admin') {
+        document.body.classList.remove('is-lector');
+        userBox.innerHTML = `<strong>${esc(currentUser.nombre)}</strong><span class="role-badge role-admin">Director (Admin)</span>`;
+        modeNotice.textContent = 'Modo de gestión completa.';
+      } else {
+        document.body.classList.add('is-lector');
+        userBox.innerHTML = `<strong>${esc(currentUser.nombre)}</strong><span class="role-badge role-lector">Lector (Solo lectura)</span>`;
+        modeNotice.textContent = 'Modo de solo lectura. No se permiten modificaciones.';
+      }
+      initData();
+    }
+
+    const defaultStudentNames = [
+      ['Mateo Aguilar López','Valentina Alvarado Rojas','Sebastián Arce Vargas','Camila Blanco Fernández','Diego Callejas Molina','Luciana Castro Herrera','Andrés Cuéllar Pardo','Valeria de la Cruz Sosa','Gabriel Díaz Flores','Sofía Escobar Jiménez','Joaquín Fernández Roca','María García Salvatierra','Nicolás Gutiérrez Paz','Daniela Herrera Ortiz','Emiliano Ibañez Suárez','Renata Jiménez Prado','Thiago López Méndez','Antonella Martínez Ríos','Bruno Méndez Ávila','Isabella Molina Reyes','Santiago Navarro Gil','Paula Ocampo Ruiz','Benjamín Pérez Vaca','Abril Quiroga Siles','Tomás Rojas Céspedes','Mariana Salazar Pinto','Lucas Suárez Moreno','Emma Torres Aguilera','Facundo Vargas León','Julieta Velasco Paz','Samuel Villarroel Cruz','Mía Zambrana Ortiz','Adrián Álvarez Roca','Natalia Barba Lima','Cristian Cabrera Soliz','Danna Domínguez Paz','Franco Espinoza Gil','Ariana Flores Rocha'],
+      ['Alejandro de la Cruz Sosa','Martina Díaz Flores','Ian Escobar Jiménez','Alma Fernández Roca','Leonardo García Salvatierra','Victoria Gutiérrez Paz','Dylan Herrera Ortiz','Josefina Ibañez Suárez','Máximo Jiménez Prado','Florencia López Méndez','Lautaro Martínez Ríos','Agustina Méndez Ávila','Valentín Molina Reyes','Catalina Navarro Gil','Axel Ocampo Ruiz','Bianca Pérez Vaca','Franco Quiroga Siles','Amparo Rojas Céspedes','Bautista Salazar Pinto','Clara Suárez Moreno','Felipe Torres Aguilera','Malena Vargas León','Simón Velasco Paz','Lola Villarroel Cruz','Gael Zambrana Ortiz','Pilar Álvarez Roca','Julián Barba Lima','Olivia Cabrera Soliz','Ramiro Domínguez Paz','Delfina Espinoza Gil','Elías Flores Rocha','Aitana Aguilar López','Benicio Alvarado Rojas','Carolina Arce Vargas','Iván Blanco Fernández','Luz Callejas Molina','Lisandro Castro Herrera','Noelia Cuéllar Pardo'],
+      ['Thiago Ibañez Suárez','Antonella Jiménez Prado','Matías López Méndez','Renata Martínez Ríos','Santino Méndez Ávila','Emilia Molina Reyes','Lorenzo Navarro Gil','Ariadna Ocampo Ruiz','Benjamín Pérez Vaca','Milagros Quiroga Siles','Ignacio Rojas Céspedes','Celeste Salazar Pinto','Agustín Suárez Moreno','Abril Torres Aguilera','Jerónimo Vargas León','Mora Velasco Paz','Bruno Villarroel Cruz','Allegra Zambrana Ortiz','Valentino Álvarez Roca','Zoe Barba Lima','Francesco Cabrera Soliz','Lara Domínguez Paz','Damián Espinoza Gil','Candela Flores Rocha','Ciro Aguilar López','Maite Alvarado Rojas','Tobías Arce Vargas','Amapola Blanco Fernández','Ezequiel Callejas Molina','Bárbara Castro Herrera','Ulises Cuéllar Pardo','Violeta de la Cruz Sosa','Leandro Díaz Flores','Kiara Escobar Jiménez','Nereo Fernández Roca','Amalia García Salvatierra','Boris Gutiérrez Paz','Jimena Herrera Ortiz'],
+      ['Cristóbal Ocampo Ruiz','Julieta Pérez Vaca','Rodrigo Quiroga Siles','Florencia Rojas Céspedes','Esteban Salazar Pinto','Ainhoa Suárez Moreno','Marcos Torres Aguilera','Nerea Vargas León','Pablo Velasco Paz','Alicia Villarroel Cruz','Hernán Zambrana Ortiz','Irene Álvarez Roca','Fabián Barba Lima','Elena Cabrera Soliz','Gonzalo Domínguez Paz','Micaela Espinoza Gil','Óscar Flores Rocha','Rocío Aguilar López','Hugo Alvarado Rojas','Teresa Arce Vargas','Álvaro Blanco Fernández','Inés Callejas Molina','Rafael Castro Herrera','Silvia Cuéllar Pardo','Mario de la Cruz Sosa','Carmen Díaz Flores','Arturo Escobar Jiménez','Eva Fernández Roca','Ramón García Salvatierra','Lidia Gutiérrez Paz','Víctor Herrera Ortiz','Ariadna Ibañez Suárez','Sergio Jiménez Prado','Noa López Méndez','Manuel Martínez Ríos','Elsa Méndez Ávila','Pedro Molina Reyes','Lía Navarro Gil'],
+      ['Adrián Vargas León','Daniela Velasco Paz','Nicolás Villarroel Cruz','Valeria Zambrana Ortiz','Sebastián Álvarez Roca','Camila Barba Lima','Gabriel Cabrera Soliz','Lucía Domínguez Paz','Emiliano Espinoza Gil','Paula Flores Rocha','Santiago Aguilar López','Renata Alvarado Rojas','Mateo Arce Vargas','Marina Blanco Fernández','Andrés Callejas Molina','Carla Castro Herrera','Diego Cuéllar Pardo','Isabel de la Cruz Sosa','Joaquín Díaz Flores','Elisa Escobar Jiménez','Lucas Fernández Roca','Mía García Salvatierra','Tomás Gutiérrez Paz','Ariana Herrera Ortiz','Samuel Ibañez Suárez','Natalia Jiménez Prado','Facundo López Méndez','Emma Martínez Ríos','Bruno Méndez Ávila','Juliana Molina Reyes','Cristian Navarro Gil','Sofía Ocampo Ruiz','Thiago Pérez Vaca','Valentina Quiroga Siles','Franco Rojas Céspedes','Abril Salazar Pinto','Benjamín Suárez Moreno','Mariana Torres Aguilera'],
+      ['Lautaro Domínguez Paz','Martina Espinoza Gil','Máximo Flores Rocha','Catalina Aguilar López','Felipe Alvarado Rojas','Josefina Arce Vargas','Dante Blanco Fernández','Alma Callejas Molina','Ciro Castro Herrera','Victoria Cuéllar Pardo','Simón de la Cruz Sosa','Clara Díaz Flores','Bautista Escobar Jiménez','Pilar Fernández Roca','Valentín García Salvatierra','Bianca Gutiérrez Paz','Ian Herrera Ortiz','Lola Ibañez Suárez','Gael Jiménez Prado','Agustina López Méndez','Julián Martínez Ríos','Olivia Méndez Ávila','Elías Molina Reyes','Delfina Navarro Gil','Benicio Ocampo Ruiz','Aitana Pérez Vaca','Ramiro Quiroga Siles','Noelia Rojas Céspedes','Tobías Salazar Pinto','Celeste Suárez Moreno','Leandro Torres Aguilera','Malena Vargas León','Iván Velasco Paz','Luz Villarroel Cruz','Lisandro Zambrana Ortiz','Amparo Álvarez Roca','Ezequiel Barba Lima','Mora Cabrera Soliz']
+    ];
+
+    const key = 'marcelinoDemo5';
+
+    function iso() {
+      let d = new Date();
+      return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+    }
+
+    let s = {
+      courses: [],
+      students: [],
+      marks: {},
+      leaves: [],
+      cites: [],
+      course: 0,
+      view: 'Inicio'
+    };
+
+    function initData() {
+      try {
+        let old = JSON.parse(localStorage.getItem(key));
+        if (old?.courses?.length) {
+          s = { ...s, ...old };
+          render();
+          return;
+        }
+      } catch (e) {}
+
+      const defaultCourses = ['1.º', '2.º', '3.º', '4.º', '5.º', '6.º'];
+      defaultCourses.forEach((name, idx) => {
+        s.courses.push({ id: idx, nombre: name, nivel: 'Secundaria' });
+        defaultStudentNames[idx].forEach((studentName, i) => {
+          s.students.push({
+            id: `${idx}-${i}`,
+            name: studentName,
+            course: idx,
+            guardian: 'Padre/madre de ' + studentName
+          });
+        });
+      });
+
+      s.leaves = [{ id: 1, student: '0-1', start: iso(), end: iso(), reason: 'Consulta médica', guardian: 'Familia Alvarado', status: 'Pendiente' }];
+      s.cites = [{ id: 1, student: '0-9', date: iso(), time: '10:00', reason: 'Reunión con tutor', guardian: 'Familia Escobar', status: 'Pendiente' }];
+      render();
+    }
+
+    function save() {
+      localStorage.setItem(key, JSON.stringify(s));
+      document.getElementById('saved').textContent = ' · Guardado localmente';
+    }
+
+    function esc(x) {
+      return String(x ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+    }
+
+    function student(id) {
+      return s.students.find(x => x.id === id);
+    }
+
+    function course(courseId) {
+      const c = s.courses.find(x => x.id === courseId);
+      return c ? `${c.nombre} de ${c.nivel}` : 'Curso no encontrado';
+    }
+
+    function date() {
+      return document.getElementById('date').value || iso();
+    }
+
+    function status(id) {
+      return s.marks[date() + '_' + id] || 'P';
+    }
+
+    function approved(id, d = date()) {
+      return s.leaves.some(l => l.student === id && l.status === 'Aprobada' && l.start <= d && l.end >= d);
+    }
+
+    function notify(t) {
+      let el = document.getElementById('toast');
+      el.textContent = t;
+      el.classList.add('show');
+      setTimeout(() => el.classList.remove('show'), 2600);
+    }
+
+    function addCourse() {
+      if (currentUser?.rol !== 'admin') {
+        alert('Acción denegada: Los lectores solo pueden visualizar el contenido.');
+        return;
+      }
+      openModal('Añadir nuevo curso', [
+        { name: 'nombre', label: 'Nombre o paralelo del curso (ej. 1.º "B", 7.º)', required: true },
+        { name: 'nivel', label: 'Nivel educativo', type: 'select', options: [
+          { value: 'Secundaria', label: 'Secundaria' },
+          { value: 'Primaria', label: 'Primaria' },
+          { value: 'Inicial', label: 'Inicial' }
+        ]}
+      ], async d => {
+        const newId = Date.now();
+        const nuevoCurso = { id: newId, nombre: d.nombre.trim(), nivel: d.nivel || 'Secundaria' };
+
+        s.courses.push(nuevoCurso);
+        s.course = newId;
+
+        try {
+          await fetch('/api/cursos', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'x-user-role': currentUser.rol },
+            body: JSON.stringify({ nombre: nuevoCurso.nombre, nivel: nuevoCurso.nivel })
+          });
+        } catch (e) {}
+
+        save();
+        render();
+        if (s.view === 'Cursos') showExtra('Cursos');
+        notify(`Curso "${nuevoCurso.nombre}" añadido correctamente.`);
+      });
+    }
+
+    function render() {
+      document.getElementById('today').textContent = new Date().toLocaleDateString('es-BO', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+      document.getElementById('total').textContent = s.students.length;
+      document.getElementById('totalCourses').textContent = s.courses.length;
+
+      document.getElementById('courses').innerHTML = s.courses.map(c => `
+        <button class="course ${c.id === s.course ? 'active' : ''}" data-course="${c.id}">
+          ${esc(c.nombre)}<small>${esc(c.nivel)}</small>
+        </button>
+      `).join('');
+
+      document.querySelectorAll('[data-course]').forEach(b => b.onclick = () => {
+        s.course = Number(b.dataset.course);
+        render();
+      });
+
+      let all = s.students.filter(x => x.course === s.course && x.name.toLowerCase().includes(document.getElementById('search').value.toLowerCase()));
+      document.getElementById('attTitle').textContent = 'Asistencia - ' + course(s.course);
+
+      const isLector = currentUser?.rol === 'lector';
+
+      document.getElementById('rows').innerHTML = all.map((x, i) => {
+        let m = status(x.id);
+        return `<tr>
+          <td>${i + 1}</td>
+          <td><b>${esc(x.name)}</b><br><span class="muted">${esc(x.guardian)}</span></td>
+          <td>
+            <div class="marks">
+              ${['P', 'F', 'L'].map(v => `<button class="${m === v ? v : ''}" title="${{ P: 'Presente', F: 'Falta', L: 'Licencia aprobada' }[v]}" data-mark="${x.id}|${v}" ${isLector || (v === 'L' && !approved(x.id)) ? 'disabled' : ''}>${{ P: '•', F: 'F', L: 'L' }[v]}</button>`).join('')}
+            </div>
+          </td>
+          <td>${m === 'F' ? 'Falta registrada' : m === 'L' ? 'Licencia aprobada' : '—'}</td>
+        </tr>`;
+      }).join('') || '<tr><td colspan="4" class="muted" style="text-align:center;padding:18px;">No hay estudiantes registrados en este curso aún.</td></tr>';
+
+      const courseStudentsCount = s.students.filter(x => x.course === s.course).length;
+      document.getElementById('showing').textContent = `Mostrando ${all.length} de ${courseStudentsCount} estudiantes`;
+
+      document.querySelectorAll('[data-mark]').forEach(b => {
+        if (!isLector) {
+          b.onclick = async () => {
+            let [id, v] = b.dataset.mark.split('|');
+            if (v === 'L' && !approved(id)) {
+              notify('La L solo aparece cuando el colegio aprueba la licencia.');
+              return;
+            }
+            s.marks[date() + '_' + id] = v;
+            try {
+              await fetch('/api/asistencia', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'x-user-role': currentUser.rol },
+                body: JSON.stringify({ estudiante_id: id, fecha: date(), estado: v })
+              });
+            } catch(e) {}
+            save();
+            render();
+          };
+        }
+      });
+
+      let counts = { P: 0, F: 0, L: 0 };
+      s.students.filter(x => x.course === s.course).forEach(x => counts[status(x.id)]++);
+      document.getElementById('present').textContent = s.students.filter(x => status(x.id) === 'P').length;
+      document.getElementById('courseTotal').textContent = courseStudentsCount + ' estudiantes';
+      document.getElementById('breakdown').innerHTML = `<b><i class="dot"></i> Presentes: ${counts.P}</b><b><i class="dot red"></i> Faltas: ${counts.F}</b><b><i class="dot blue"></i> Licencias: ${counts.L}</b>`;
+
+      document.getElementById('leaves').innerHTML = s.leaves.slice().reverse().slice(0, 5).map(l => `
+        <div class="item">
+          <div class="grow">
+            <b>${esc(student(l.student)?.name || 'Alumno')}</b>
+            <small>${esc(l.start)} – ${esc(l.end)} · ${esc(l.reason)}</small>
+          </div>
+          <span class="status ${l.status === 'Aprobada' ? 'approved' : l.status === 'Rechazada' ? 'rejected' : 'pending'}">${l.status}</span>
+          ${!isLector && l.status === 'Pendiente' ? `<button class="btn green" data-approve="${l.id}">Aprobar</button>` : ''}
+        </div>
+      `).join('') || '<p class="muted">No hay solicitudes.</p>';
+
+      if (!isLector) {
+        document.querySelectorAll('[data-approve]').forEach(b => b.onclick = () => approve(+b.dataset.approve));
+      }
+
+      document.getElementById('cites').innerHTML = s.cites.slice().reverse().slice(0, 5).map(c => `
+        <div class="item">
+          <div class="grow">
+            <b>${esc(student(c.student)?.name || 'Alumno')}</b>
+            <small>${esc(c.date)} · ${esc(c.time)} · ${esc(c.reason)}</small>
+          </div>
+          <span class="status pending">${esc(c.status)}</span>
+          <button class="btn gray" data-print="${c.id}">Imprimir</button>
+        </div>
+      `).join('') || '<p class="muted">No hay citaciones.</p>';
+
+      document.querySelectorAll('[data-print]').forEach(b => b.onclick = () => printCite(+b.dataset.print));
+      save();
+    }
+
+    function approve(id) {
+      if (currentUser?.rol !== 'admin') return;
+      let l = s.leaves.find(x => x.id === id);
+      if (!l) return;
+      l.status = 'Aprobada';
+      for (let d = new Date(l.start + 'T12:00:00'), end = new Date(l.end + 'T12:00:00'); d <= end; d.setDate(d.getDate() + 1)) {
+        let k = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+        s.marks[k + '_' + l.student] = 'L';
+      }
+      save();
+      render();
+      notify('Licencia aprobada. La L se registró automáticamente.');
+    }
+
+    function openModal(title, fields, done) {
+      if (currentUser?.rol !== 'admin') {
+        alert('Acción denegada: Modo solo lectura.');
+        return;
+      }
+      document.getElementById('modalTitle').textContent = title;
+      document.getElementById('fields').innerHTML = fields.map(f => `
+        <label class="field ${f.full ? 'full' : ''}">
+          ${f.label}
+          ${f.type === 'select' ? `<select name="${f.name}" required><option value="">Seleccionar...</option>${f.options.map(o => `<option value="${esc(o.value)}">${esc(o.label)}</option>`).join('')}</select>` : f.type === 'textarea' ? `<textarea name="${f.name}" required></textarea>` : `<input name="${f.name}" type="${f.type || 'text'}" ${f.required ? 'required' : ''} ${f.value ? `value="${f.value}"` : ''}>`}
+        </label>
+      `).join('');
+      document.getElementById('back').classList.add('open');
+      document.getElementById('form').onsubmit = e => {
+        e.preventDefault();
+        done(Object.fromEntries(new FormData(e.target)));
+        document.getElementById('back').classList.remove('open');
+        render();
+      };
+    }
+
+    function leave() {
+      if (currentUser?.rol !== 'admin') return;
+      openModal('Solicitud de licencia', [
+        { name: 'studentName', label: 'Nombre completo de su hijo/a', required: true },
+        { name: 'start', label: 'Desde', type: 'date', required: true, value: iso() },
+        { name: 'end', label: 'Hasta', type: 'date', required: true, value: iso() },
+        { name: 'guardian', label: 'Nombre del padre/madre/tutor', required: true },
+        { name: 'reason', label: 'Motivo de la licencia', type: 'textarea', full: true }
+      ], d => {
+        let found = s.students.filter(x => x.name.trim().toLocaleLowerCase('es') === d.studentName.trim().toLocaleLowerCase('es'));
+        if (!found.length) {
+          notify('No encontramos ese nombre.');
+          return;
+        }
+        let { studentName, ...rest } = d;
+        s.leaves.push({ id: Date.now(), student: found[0].id, studentName: found[0].name, ...rest, status: 'Pendiente' });
+        notify('Solicitud registrada.');
+      });
+    }
+
+    function citation() {
+      if (currentUser?.rol !== 'admin') return;
+      openModal('Generar citación a padres', [
+        { name: 'student', label: 'Nombre completo del estudiante', required: true },
+        { name: 'guardian', label: 'Padre/madre/tutor', required: true },
+        { name: 'date', label: 'Fecha de reunión', type: 'date', required: true, value: iso() },
+        { name: 'time', label: 'Hora', type: 'time', required: true, value: '10:00' },
+        { name: 'reason', label: 'Motivo', type: 'textarea', full: true }
+      ], d => {
+        s.cites.push({ id: Date.now(), ...d, status: 'Pendiente' });
+        notify('Citación guardada.');
+      });
+    }
+
+    function printCite(id) {
+      let c = s.cites.find(x => x.id === id),
+          st = student(c.student),
+          studentName = st?.name || c.student,
+          courseName = st ? course(st.course) : 'curso no especificado';
+      let w = window.open('', '_blank');
+      if (!w) {
+        notify('Permití ventanas emergentes.');
+        return;
+      }
+      w.document.write(`
+        <h2 style="text-align:center">UNIDAD EDUCATIVA MARCELINO CHAMPAGNAT II</h2>
+        <h3 style="text-align:center">CITACIÓN A PADRE, MADRE O TUTOR</h3>
+        <p>Señor/a ${esc(c.guardian)}, solicitamos su presencia para tratar asuntos relacionados con el/la estudiante <b>${esc(studentName)}</b>, de ${esc(courseName)}.</p>
+        <p><b>Motivo:</b> ${esc(c.reason)}</p>
+        <p><b>Fecha:</b> ${esc(c.date)} &nbsp; <b>Hora:</b> ${esc(c.time)}</p>
+        <p>Agradecemos su puntual asistencia y colaboración.</p><br><br>
+        <p>___________________________<br>Firma del padre/madre/tutor</p>
+        <script>window.onload = () => window.print()<\/script>
+      `);
+      w.document.close();
+    }
+
+    function addStudent() {
+      if (currentUser?.rol !== 'admin') return;
+      openModal('Agregar estudiante', [
+        { name: 'name', label: 'Nombre completo', required: true },
+        { name: 'course', label: 'Curso', type: 'select', options: s.courses.map(c => ({ value: c.id, label: `${c.nombre} (${c.nivel})` })) },
+        { name: 'guardian', label: 'Padre/madre/tutor', required: true }
+      ], d => {
+        const courseId = Number(d.course);
+        s.students.push({ id: 'x' + Date.now(), name: d.name.trim(), course: courseId, guardian: d.guardian.trim() });
+        s.course = courseId;
+        save();
+        render();
+        if (s.view === 'Cursos') showExtra('Cursos');
+        notify('Alumno agregado.');
+      });
+    }
+
+    function csv() {
+      let data = [
+        ['Curso', 'Estudiante', 'Fecha', 'Asistencia', 'Tutor'],
+        ...s.students.map(x => [course(x.course), x.name, date(), { P: 'Presente', F: 'Falta', L: 'Licencia' }[status(x.id)], x.guardian])
+      ];
+      let blob = new Blob(['\ufeff' + data.map(r => r.map(v => '"' + String(v ?? '').replaceAll('"', '""') + '"').join(';')).join('\r\n')], { type: 'text/csv;charset=utf-8' });
+      let a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'asistencia-marcelino-' + date() + '.csv';
+      a.click();
+      URL.revokeObjectURL(a.href);
+    }
+
+    function allLeaves() {
+      document.getElementById('pageTitle').textContent = 'Solicitudes de licencia';
+      const isLector = currentUser?.rol === 'lector';
+      document.getElementById('leaves').innerHTML = s.leaves.map(l => `
+        <div class="item">
+          <div class="grow">
+            <b>${esc(student(l.student)?.name)}</b>
+            <small>${esc(l.start)} a ${esc(l.end)} · ${esc(l.reason)} · ${esc(l.guardian)}</small>
+          </div>
+          <span class="status ${l.status === 'Aprobada' ? 'approved' : l.status === 'Rechazada' ? 'rejected' : 'pending'}">${l.status}</span>
+          ${!isLector && l.status === 'Pendiente' ? `<button class="btn green" data-approve="${l.id}">Aprobar</button><button class="btn red" data-reject="${l.id}">Rechazar</button>` : ''}
+        </div>
+      `).join('') || 'No hay solicitudes';
+
+      if (!isLector) {
+        document.querySelectorAll('[data-approve]').forEach(b => b.onclick = () => approve(+b.dataset.approve));
+        document.querySelectorAll('[data-reject]').forEach(b => b.onclick = () => {
+          s.leaves.find(l => l.id === +b.dataset.reject).status = 'Rechazada';
+          render();
+        });
+      }
+    }
+
+    function allCites() {
+      document.getElementById('pageTitle').textContent = 'Citaciones a padres';
+      document.getElementById('cites').innerHTML = s.cites.map(c => `
+        <div class="item">
+          <div class="grow">
+            <b>${esc(student(c.student)?.name)}</b>
+            <small>${esc(c.date)} · ${esc(c.time)} · ${esc(c.reason)} · ${esc(c.guardian)}</small>
+          </div>
+          <button class="btn gray" data-print="${c.id}">Imprimir</button>
+        </div>
+      `).join('') || 'No hay citaciones';
+
+      document.querySelectorAll('[data-print]').forEach(b => b.onclick = () => printCite(+b.dataset.print));
+    }
+
+    async function leave() {
+      openModal('Solicitud de licencia', [
+        { name: 'studentName', label: 'Nombre completo de su hijo/a', required: true },
+        { name: 'start', label: 'Desde', type: 'date', required: true, value: iso() },
+        { name: 'end', label: 'Hasta', type: 'date', required: true, value: iso() },
+        { name: 'guardian', label: 'Nombre del padre/madre/tutor', required: true },
+        { name: 'reason', label: 'Motivo de la licencia', type: 'textarea', full: true }
+      ], async d => {
+        try {
+          const currentUser = JSON.parse(localStorage.getItem('marcelinoUser') || '{}');
+
+          const res = await fetch('/api/licencias', {
+            method: 'POST',
+            headers: { 
+              'Content-Type': 'application/json',
+              'x-user-role': currentUser.rol || 'lector'
+            },
+            body: JSON.stringify({
+              estudiante_nombre: d.studentName,
+              fecha_inicio: d.start,
+              fecha_fin: d.end,
+              tutor_nombre: d.guardian,
+              motivo: d.reason
+            })
+          });
+
+          const data = await res.json();
+          if (!res.ok) throw new Error(data.error || 'No se pudo registrar la solicitud');
+
+          alert('¡Solicitud de licencia registrada con éxito! Quedará pendiente de aprobación por la dirección.');
+          
+          if (typeof initData === 'function') {
+            initData();
+          }
+        } catch (err) {
+          alert('Error: ' + err.message);
+        }
+      });
+    }
+
+    async function showExtra(view) {
+      const home = document.querySelector('.grid'),
+            stats = document.querySelector('.stats'),
+            extra = document.getElementById('extraView');
+      if (view === 'Inicio' || view === 'Asistencia') {
+        home.style.display = '';
+        stats.style.display = '';
+        extra.style.display = 'none';
+        if (view === 'Asistencia') document.getElementById('attTitle').scrollIntoView({ behavior: 'smooth' });
+        return;
+      }
+      home.style.display = 'none';
+      stats.style.display = 'none';
+      extra.style.display = 'block';
+
+      const isLector = currentUser?.rol === 'lector';
+
+      if (view === 'Cursos') {
+        extra.innerHTML = `
+          <div class="panelhead">
+            <h3>Gestión de cursos y estudiantes</h3>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;">
+              ${!isLector ? '<button class="btn gray" id="newCourseExtra">＋ Añadir curso</button><button class="btn" id="newStudent">＋ Agregar estudiante</button>' : ''}
+            </div>
+          </div>
+          <p class="muted">Seleccioná un curso para revisar los estudiantes.</p>
+          <div class="courses">${s.courses.map(c => `
+            <button class="course ${s.course === c.id ? 'active' : ''}" data-pickcourse="${c.id}">
+              ${esc(c.nombre)} ${esc(c.nivel)}
+              <small>${s.students.filter(x => x.course === c.id).length} estudiantes</small>
+            </button>
+          `).join('')}</div>
+          <div class="toolbar"><h3>${course(s.course)}</h3><input class="search" id="courseSearch" placeholder="Buscar estudiante"></div>
+          <div id="courseStudents"></div>
+        `;
+        if (!isLector) {
+          document.getElementById('newCourseExtra').onclick = addCourse;
+          document.getElementById('newStudent').onclick = addStudent;
+        }
+        document.querySelectorAll('[data-pickcourse]').forEach(b => b.onclick = () => {
+          s.course = Number(b.dataset.pickcourse);
+          showExtra('Cursos');
+        });
+        const list = () => {
+          let q = (document.getElementById('courseSearch')?.value || '').toLowerCase();
+          document.getElementById('courseStudents').innerHTML = s.students.filter(x => x.course === s.course && x.name.toLowerCase().includes(q)).map(x => `
+            <div class="item">
+              <div class="grow">
+                <b>${esc(x.name)}</b>
+                <small>${esc(x.guardian || 'Sin tutor registrado')}</small>
+              </div>
+              ${!isLector ? `<button class="btn gray" data-editstudent="${x.id}">Editar</button><button class="btn red" data-delstudent="${x.id}">Eliminar</button>` : ''}
+            </div>
+          `).join('') || 'No hay estudiantes en este curso';
+
+          if (!isLector) {
+            document.querySelectorAll('[data-editstudent]').forEach(b => b.onclick = () => editStudent(b.dataset.editstudent));
+            document.querySelectorAll('[data-delstudent]').forEach(b => b.onclick = () => {
+              if (confirm('¿Eliminar este estudiante?')) {
+                s.students = s.students.filter(x => x.id !== b.dataset.delstudent);
+                save();
+                showExtra('Cursos');
+                render();
+              }
+            });
+          }
+        };
+        document.getElementById('courseSearch').oninput = list;
+        list();
+      } else if (view === 'Licencias') {
+        extra.innerHTML = `
+          <div class="panelhead">
+            <h3>Solicitudes de licencia</h3>
+            ${!isLector ? '<button class="btn" id="newLeave">＋ Registrar solicitud</button>' : ''}
+          </div>
+          <div id="allLeaveList"></div>
+        `;
+        if (!isLector) document.getElementById('newLeave').onclick = leave;
+        document.getElementById('allLeaveList').innerHTML = s.leaves.map(l => `
+          <div class="item">
+            <div class="grow">
+              <b>${esc(student(l.student)?.name || l.studentName || 'Estudiante')}</b>
+              <small>${esc(l.start)} a ${esc(l.end)} · ${esc(l.reason)} · Tutor: ${esc(l.guardian)}</small>
+            </div>
+            <span class="status ${l.status === 'Aprobada' ? 'approved' : l.status === 'Rechazada' ? 'rejected' : 'pending'}">${l.status}</span>
+            ${!isLector && l.status === 'Pendiente' ? `<button class="btn green" data-approve="${l.id}">Aprobar</button><button class="btn red" data-reject="${l.id}">Rechazar</button>` : ''}
+          </div>
+        `).join('') || 'No hay solicitudes';
+
+        if (!isLector) {
+          document.querySelectorAll('[data-approve]').forEach(b => b.onclick = () => approve(+b.dataset.approve));
+          document.querySelectorAll('[data-reject]').forEach(b => b.onclick = () => {
+            let l = s.leaves.find(x => x.id === +b.dataset.reject);
+            if (l) l.status = 'Rechazada';
+            save();
+            showExtra('Licencias');
+          });
+        }
+      } else if (view === 'Citaciones') {
+        extra.innerHTML = `
+          <div class="panelhead">
+            <h3>Citaciones a padres</h3>
+            ${!isLector ? '<button class="btn" id="newCite">＋ Crear citación</button>' : ''}
+          </div>
+          <div id="allCiteList"></div>
+        `;
+        if (!isLector) document.getElementById('newCite').onclick = citation;
+        document.getElementById('allCiteList').innerHTML = s.cites.map(c => `
+          <div class="item">
+            <div class="grow">
+              <b>${esc(student(c.student)?.name || c.student || 'Estudiante')}</b>
+              <small>${esc(c.date)} · ${esc(c.time)} · ${esc(c.reason)} · ${esc(c.guardian)}</small>
+            </div>
+            <span class="status pending">${esc(c.status || 'Pendiente')}</span>
+            <button class="btn gray" data-print="${c.id}">Imprimir</button>
+            ${!isLector ? `<button class="btn red" data-delcite="${c.id}">Eliminar</button>` : ''}
+          </div>
+        `).join('') || 'No hay citaciones';
+
+        document.querySelectorAll('[data-print]').forEach(b => b.onclick = () => printCite(+b.dataset.print));
+        if (!isLector) {
+          document.querySelectorAll('[data-delcite]').forEach(b => b.onclick = () => {
+            s.cites = s.cites.filter(c => c.id !== +b.dataset.delcite);
+            save();
+            showExtra('Citaciones');
+          });
+        }
+      } else if (view === 'Usuarios' && currentUser?.rol === 'admin') {
+        try {
+          const res = await fetch('/api/usuarios');
+          const usersList = await res.json();
+          extra.innerHTML = `
+            <div class="panelhead">
+              <h3>Usuarios Registrados en el Sistema</h3>
+            </div>
+            <p class="muted">Lista de cuentas con acceso lector y administrador.</p>
+            <div class="tablewrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Nombre</th>
+                    <th>Usuario</th>
+                    <th>Rol</th>
+                    <th>Fecha de Registro</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${usersList.map(u => `
+                    <tr>
+                      <td>${u.id}</td>
+                      <td><b>${esc(u.nombre)}</b></td>
+                      <td>${esc(u.usuario)}</td>
+                      <td><span class="role-badge ${u.rol === 'admin' ? 'role-admin' : 'role-lector'}">${u.rol.toUpperCase()}</span></td>
+                      <td>${esc(u.creado_en)}</td>
+                    </tr>
+                  `).join('')}
+                </tbody>
+              </table>
+            </div>
+          `;
+        } catch (e) {
+          extra.innerHTML = '<p class="muted">No se pudo cargar la lista de usuarios.</p>';
+        }
+      } else if (view === 'Configuración' && currentUser?.rol === 'admin') {
+        extra.innerHTML = `
+          <div class="panelhead">
+            <h3>Configuración del sistema</h3>
+          </div>
+          <div class="fields">
+            <label class="field">Nombre de la institución<input id="schoolName" value="Unidad Educativa Marcelino Champagnat II"></label>
+            <label class="field">Nombre del sistema<input id="systemName" value="Sistema de Gestión de Asistencia"></label>
+            <label class="field full">Cambiar logo del colegio (imagen)<input id="logoUpload" type="file" accept="image/*"></label>
+          </div>
+          <div class="toolbar">
+            <button class="btn" id="saveConfig">Guardar configuración</button>
+            <button class="btn gray" id="resetDemo">Restablecer datos de demostración</button>
+          </div>
+          <p class="muted">Los cambios se guardan únicamente en este navegador.</p>
+        `;
+        document.getElementById('saveConfig').onclick = () => {
+          let n = document.getElementById('schoolName').value.trim(),
+              t = document.getElementById('systemName').value.trim();
+          if (n) {
+            document.querySelectorAll('.hero h1').forEach((e, i) => {
+              if (i === 0) e.textContent = t.toUpperCase();
+              else e.textContent = n.toUpperCase();
+            });
+            document.querySelector('.smallbrand b').innerHTML = esc(n).replaceAll(' ', '<br>');
+            localStorage.setItem('marcelinoSchoolName', n);
+            localStorage.setItem('marcelinoSystemName', t);
+            notify('Configuración guardada.');
+          }
+        };
+        document.getElementById('logoUpload').onchange = e => {
+          let f = e.target.files[0];
+          if (!f) return;
+          let rd = new FileReader();
+          rd.onload = () => {
+            document.querySelectorAll('.logoimg').forEach(img => img.src = rd.result);
+            localStorage.setItem('marcelinoLogo', rd.result);
+            notify('Logo actualizado.');
+          };
+          rd.readAsDataURL(f);
+        };
+        document.getElementById('resetDemo').onclick = () => {
+          if (confirm('¿Restablecer todos los datos de demostración?')) {
+            localStorage.removeItem(key);
+            location.reload();
+          }
+        };
+      }
+    }
+
+    function editStudent(id) {
+      if (currentUser?.rol !== 'admin') return;
+      let x = student(id);
+      if (!x) return;
+      openModal('Editar estudiante', [
+        { name: 'name', label: 'Nombre completo', required: true },
+        { name: 'guardian', label: 'Padre/madre/tutor', required: true }
+      ], d => {
+        x.name = d.name;
+        x.guardian = d.guardian;
+        save();
+        showExtra('Cursos');
+      });
+      document.querySelector('[name=name]').value = x.name;
+      document.querySelector('[name=guardian]').value = x.guardian || '';
+    }
+
+    document.querySelectorAll('.nav').forEach(b => b.onclick = () => {
+      document.querySelectorAll('.nav').forEach(n => n.classList.toggle('active', n === b));
+      s.view = b.dataset.view;
+      document.getElementById('pageTitle').textContent = s.view === 'Inicio' ? 'Resumen general' : s.view;
+      showExtra(s.view);
+    });
+
+    document.getElementById('addCourseBtn')?.addEventListener('click', addCourse);
+    document.getElementById('quickCourse')?.addEventListener('click', addCourse);
+    document.getElementById('quickLeave')?.addEventListener('click', leave);
+    document.getElementById('quickCite')?.addEventListener('click', citation);
+    document.getElementById('quickAtt')?.addEventListener('click', () => document.getElementById('attTitle').scrollIntoView({ behavior: 'smooth' }));
+    document.getElementById('add')?.addEventListener('click', addStudent);
+    document.getElementById('addDirect')?.addEventListener('click', () => {
+      if (currentUser?.rol !== 'admin') return;
+      let el = document.getElementById('newStudentName'),
+          name = el.value.trim();
+      if (!name) {
+        notify('Escribí el nombre del estudiante.');
+        return;
+      }
+      if (s.students.some(x => x.course === s.course && x.name.toLowerCase() === name.toLowerCase())) {
+        notify('Ese estudiante ya está en este curso.');
+        return;
+      }
+      s.students.push({ id: 'x' + Date.now(), name, course: s.course, guardian: 'Sin tutor registrado' });
+      el.value = '';
+      save();
+      render();
+      notify('Estudiante agregado al curso.');
+    });
+
+    document.getElementById('review')?.addEventListener('click', allLeaves);
+    document.getElementById('allLeaves').addEventListener('click', allLeaves);
+    document.getElementById('allCites').addEventListener('click', allCites);
+    document.getElementById('export').addEventListener('click', csv);
+    document.getElementById('cancel').addEventListener('click', () => document.getElementById('back').classList.remove('open'));
+    document.getElementById('search').addEventListener('input', render);
+    document.getElementById('date').value = iso();
+    document.getElementById('date').addEventListener('change', render);
+
+    checkAuthUI();
+
+    let savedLogo = localStorage.getItem('marcelinoLogo');
+    if (savedLogo) document.querySelectorAll('.logoimg').forEach(img => img.src = savedLogo);
+    let sn = localStorage.getItem('marcelinoSchoolName');
+    if (sn) document.querySelector('.smallbrand b').innerHTML = esc(sn).replaceAll(' ', '<br>');
+    let sy = localStorage.getItem('marcelinoSystemName');
+    if (sy) document.querySelector('.hero h1').textContent = sy.toUpperCase();
+
+    document.getElementById('btnLogout')?.addEventListener('click', () => {
+      localStorage.removeItem('marcelinoUser');
+      sessionStorage.clear();
+      currentUser = null;
+      const authScreen = document.getElementById('authScreen');
+      if (authScreen) {
+        authScreen.style.display = 'flex';
+      }
+      window.location.reload();
+    });
+  </script>
+</body>
+</html>
